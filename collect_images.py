@@ -7,8 +7,7 @@ import uuid
 
 
 def collect_images(save_path):
-    save_path = "/tests/" ++ save_path ++ date.today().strftime("%b-%d-%Y") 
-        ++ str(uuid.uuid1())
+    save_path = "test_data/%s/%s.%s" % (save_path, uuid.uuid1(),"png")
 
     image = ui.screenshot()
 
@@ -16,9 +15,9 @@ def collect_images(save_path):
     # PIL(pillow) and in RGB we need to  
     # convert it to numpy array and BGR  
     # so we can write it to the disk 
-    image = cv.cvtColor(np.array(image), 
-                     cv.COLOR_RGB2BGR)
+    image = cv.cvtColor(np.array(image), cv.COLOR_RGB2BGR)
 
+    print(save_path)
     cv.imwrite(save_path, image)
 
 
