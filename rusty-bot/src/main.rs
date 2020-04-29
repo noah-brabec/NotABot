@@ -1,21 +1,27 @@
 extern crate repng;
 extern crate scrap;
+extern crate chrono;
 
 use scrap::{Capturer, Display};
 use std::io::ErrorKind::WouldBlock;
 use std::fs::File;
 use std::thread;
 use std::time::Duration;
+use std::env;
+use chrono::Utc;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    let num_pics = &args[1].parse::<i32>().unwrap();
     let one_second = Duration::new(1, 0);
+    let two_seconds: Duration = Duration::new(2,0);
     let one_frame = one_second / 60;
 
     let display = Display::primary().expect("Couldn't find primary display.");
     let mut capturer = Capturer::new(display).expect("Couldn't begin capture.");
     let (w, h) = (capturer.width(), capturer.height());
 
-    loop {
+    for i in 0..num_pics.clone() {
         // Wait until there's a frame.
 
         let buffer = match capturer.frame() {
@@ -51,15 +57,17 @@ fn main() {
         }
 
         // Save the image.
+        let now = Utc::now();
+        let filename = now.to_string();
 
         repng::encode(
-            File::create("screenshot.png").unwrap(),
+            File::create(&filename).unwrap(),
             w as u32,
             h as u32,
             &bitflipped,
         ).unwrap();
 
-        println!("Image saved to `screenshot.png`.");
-        break;
+        println!("Image saved to {}.", filename);
+        thread::sleep(two_seconds);
     }
 }
