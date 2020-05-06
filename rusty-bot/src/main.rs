@@ -4,15 +4,18 @@ extern crate chrono;
 
 use scrap::{Capturer, Display};
 use std::io::ErrorKind::WouldBlock;
+use std::fs;
 use std::fs::File;
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 use std::env;
 use chrono::Utc;
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
     let num_pics = &args[1].parse::<i32>().unwrap();
+    let save_dir = &args[2].parse::<String>().unwrap();
     let one_second = Duration::new(1, 0);
     let two_seconds: Duration = Duration::new(2,0);
     let one_frame = one_second / 60;
@@ -21,7 +24,11 @@ fn main() {
     let mut capturer = Capturer::new(display).expect("Couldn't begin capture.");
     let (w, h) = (capturer.width(), capturer.height());
 
-    for i in 0..num_pics.clone() {
+    let save_string = String::from("screenshots/").clone() + save_dir;
+    let create_path = Path::new(&save_string);
+
+    fs::create_dir(create_path)?;
+    for i in 0..num_pics.clone() + 1 {
         // Wait until there's a frame.
 
         let buffer = match capturer.frame() {
@@ -58,10 +65,11 @@ fn main() {
 
         // Save the image.
         let now = Utc::now();
-        let filename = now.to_string();
+        let filename = now.to_string() + ".png";
+        let save_path = save_string.clone() + "/" + &filename;
 
         repng::encode(
-            File::create(&filename).unwrap(),
+            File::create(&save_path).unwrap(),
             w as u32,
             h as u32,
             &bitflipped,
@@ -70,4 +78,5 @@ fn main() {
         println!("Image saved to {}.", filename);
         thread::sleep(two_seconds);
     }
+    return Ok(());
 }
