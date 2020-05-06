@@ -28,7 +28,7 @@ fn main() -> std::io::Result<()> {
     let create_path = Path::new(&save_string);
 
     fs::create_dir(create_path)?;
-    for i in 0..num_pics.clone() + 1 {
+    for _i in 0..num_pics.clone() + 1 {
         // Wait until there's a frame.
 
         let buffer = match capturer.frame() {
